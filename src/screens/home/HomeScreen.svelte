@@ -123,7 +123,10 @@
     <a href="#/practice" class="{btn.secondary} min-h-14">
       間違えた問題を練習する
     </a>
-    <a href="#/stats" class="{btn.secondary} min-h-14">統計</a>
+    <div class="grid grid-cols-2 gap-3">
+      <a href="#/list" class="{btn.secondary} min-h-14">漢字一覧</a>
+      <a href="#/stats" class="{btn.secondary} min-h-14">統計</a>
+    </div>
   </div>
 
   <section class="rounded-2xl border border-stone-200 bg-white p-4">

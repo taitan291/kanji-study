@@ -5,6 +5,7 @@
   import AnswerScreen from "./screens/answer/AnswerScreen.svelte";
   import GradingScreen from "./screens/grading/GradingScreen.svelte";
   import HomeScreen from "./screens/home/HomeScreen.svelte";
+  import KanjiListScreen from "./screens/list/KanjiListScreen.svelte";
   import ResultScreen from "./screens/result/ResultScreen.svelte";
   import PracticeScreen from "./screens/practice/PracticeScreen.svelte";
   import ReviewScreen from "./screens/review/ReviewScreen.svelte";
@@ -60,6 +61,8 @@
   <PracticeScreen />
 {:else if router.current === "stats"}
   <StatsScreen />
+{:else if router.current === "list"}
+  <KanjiListScreen />
 {:else if router.current === "answer"}
   <AnswerScreen />
 {:else if router.current === "grading"}
