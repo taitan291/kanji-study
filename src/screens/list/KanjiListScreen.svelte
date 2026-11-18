@@ -26,7 +26,9 @@
   const rounds = $derived(listRounds(questions.list));
   const shown = $derived(filterKanjiList(questions.list, filter));
   const groups = $derived(groupByRound(shown));
-  const filtered = $derived(filter.round !== null || filter.query !== "");
+  const filtered = $derived(
+    filter.round !== null || filter.query.trim() !== "",
+  );
 
   function toggle(id: string) {
     if (opened.has(id)) opened.delete(id);
