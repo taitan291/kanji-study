@@ -99,3 +99,31 @@ test("復習画面から、練習してから復習を始められる", async ({
   await expect(page.getByRole("button", { name: "中断" })).toBeVisible();
   await expect(page.getByTestId("progress")).toHaveText("1 / 1");
 });
+
+test("途中の回があるときは、練習を始める前に破棄してよいかを聞く", async ({
+  page,
+}) => {
+  await answerOne(page, false); // 復習リストに1件
+  await page.goto("/#/setup");
+  await page.getByRole("button", { name: /第50回/ }).click();
+  await page.getByRole("button", { name: /問で始める/ }).click();
+  await page.getByRole("button", { name: "中断" }).click();
+  await page.getByRole("button", { name: "あとで再開" }).click();
+
+  await page.getByRole("link", { name: /復習する/ }).click();
+  await page.getByRole("button", { name: "練習してから復習する" }).click();
+  await expect(page.getByRole("dialog")).toContainText("途中の回があります");
+  await page.getByRole("button", { name: "やめる" }).click();
+  await expect(
+    page.getByRole("heading", { name: "復習する", exact: true }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "練習してから復習する" }).click();
+  await page.getByRole("button", { name: "破棄して始める" }).click();
+  await expect(page.getByTestId("practice-plan")).toBeVisible();
+  await page.getByRole("button", { name: "練習を終えて復習を始める" }).click();
+  // もう聞かれずに、復習の回が始まる
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "中断" })).toBeVisible();
+  await expect(page.getByTestId("progress")).toHaveText("1 / 1");
+});

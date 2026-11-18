@@ -40,19 +40,23 @@
   }
 
   /** これから復習する問題を、見ながら書いて練習してから復習を始める */
-  function practiceThenStart() {
+  // 途中の回があるときは、練習を始める前に破棄してよいかを聞く（練習のあとでは遅い）
+  async function practiceThenStart() {
     if (count === 0) return;
     const ids = pickReview(entries, count, Math.random);
     const picked = new Set(ids);
-    practicePlan.set({
-      kind: "review",
-      // 練習は問題の並び順、復習はばらばらの順で出す
-      questionIds: questions.list
-        .filter((q) => picked.has(q.id))
-        .map((q) => q.id),
-      retry: { questionIds: ids, mode: "review", range },
+    const snapshot = range;
+    await launcher.beforeNewQuiz(() => {
+      practicePlan.set({
+        kind: "review",
+        // 練習は問題の並び順、復習はばらばらの順で出す
+        questionIds: questions.list
+          .filter((q) => picked.has(q.id))
+          .map((q) => q.id),
+        retry: { questionIds: ids, mode: "review", range: snapshot },
+      });
+      router.go("practice");
     });
-    router.go("practice");
   }
 </script>
 

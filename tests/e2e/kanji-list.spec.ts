@@ -35,6 +35,13 @@ test("漢字一覧を回と文字で絞り込み、漢字を隠せる", async ({
   await expect(page.getByTestId("kanji-card")).toHaveCount(1);
   await expect(page.getByTestId("list-count")).toHaveText("1 / 129 問");
   await page.getByRole("button", { name: "絞り込みを外す" }).click();
+  // 空白だけなら絞り込んでいない扱い
+  await page.getByLabel("漢字・読み・例文・意味で探す").fill("  ");
+  await expect(page.getByTestId("list-count")).toHaveText("129 問");
+  await expect(
+    page.getByRole("button", { name: "絞り込みを外す" }),
+  ).toHaveCount(0);
+  await page.getByLabel("漢字・読み・例文・意味で探す").fill("");
   await expect(page.getByTestId("kanji-card")).toHaveCount(129);
 
   await page.getByRole("button", { name: "漢字を隠す" }).click();

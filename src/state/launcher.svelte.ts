@@ -2,49 +2,47 @@ import type { Mode, QuestionId, RangeSpec } from "../domain/types";
 import { activeQuiz } from "./active-quiz.svelte";
 import { router } from "./router.svelte";
 
-interface LaunchRequest {
-  questionIds: QuestionId[];
-  mode: Mode;
-  range?: RangeSpec;
-}
+/** 途中の回を破棄してよいと決まったあとに行うこと */
+type Action = () => void | Promise<void>;
 
 /**
  * 新しい回を始める窓口。採点が終わっていない回があれば、破棄してよいかを先に聞く（仕様書 4.4）。
  * 確認のダイアログは App が `launcher.waiting` を見て出す。
  */
 class Launcher {
-  waiting = $state.raw<LaunchRequest | null>(null);
+  waiting = $state.raw<Action | null>(null);
 
   async launch(questionIds: QuestionId[], mode: Mode, range?: RangeSpec) {
     if (questionIds.length === 0) return;
-    const request: LaunchRequest = {
-      questionIds,
-      mode,
-      ...(range ? { range } : {}),
-    };
-    if (activeQuiz.hasUnfinished) {
-      this.waiting = request;
-      return;
-    }
-    await this.#start(request);
+    await this.beforeNewQuiz(async () => {
+      await activeQuiz.start(questionIds, mode, range);
+      router.go("answer");
+    });
   }
 
-  /** 途中の回を破棄して始める */
+  /**
+   * 新しい回につながる操作（「練習してから復習する」など）を、途中の回の確認をしてから行う。
+   * 練習を終えたあとではなく、練習を始める前に聞くためのもの。
+   */
+  async beforeNewQuiz(action: Action) {
+    if (activeQuiz.hasUnfinished) {
+      this.waiting = action;
+      return;
+    }
+    await action();
+  }
+
+  /** 途中の回を破棄して進める */
   async confirm() {
-    const request = this.waiting;
+    const action = this.waiting;
     this.waiting = null;
-    if (!request) return;
+    if (!action) return;
     await activeQuiz.discard();
-    await this.#start(request);
+    await action();
   }
 
   cancel() {
     this.waiting = null;
-  }
-
-  async #start(r: LaunchRequest) {
-    await activeQuiz.start(r.questionIds, r.mode, r.range);
-    router.go("answer");
   }
 }
 
