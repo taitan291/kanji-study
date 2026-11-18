@@ -149,4 +149,25 @@ describe("設定", () => {
     s.setItem("kanji-study:settings", JSON.stringify({ lastCount: 0 }));
     expect(loadSettings(s).lastCount).toBe(0);
   });
+
+  it("優先の設定は2つに分かれ、以前のまとめた設定は両方に引き継ぐ", () => {
+    const s = new MemoryStorage();
+    saveSettings(
+      {
+        ...DEFAULT_SETTINGS,
+        prioritizeWrong: true,
+        prioritizeUnanswered: false,
+      },
+      s,
+    );
+    expect(loadSettings(s)).toMatchObject({
+      prioritizeWrong: true,
+      prioritizeUnanswered: false,
+    });
+    s.setItem("kanji-study:settings", JSON.stringify({ prioritize: true }));
+    expect(loadSettings(s)).toMatchObject({
+      prioritizeWrong: true,
+      prioritizeUnanswered: true,
+    });
+  });
 });

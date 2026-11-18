@@ -28,22 +28,30 @@
   const ids = $derived(resolveRange(questions.list, range));
   const count = $derived(resolveCount(wanted, ids.length));
 
-  // 最後の解答が × の問題と、まだ解いていない問題を優先する
-  let prioritize = $state(settings.value.prioritize);
+  // 最後の解答が × の問題・まだ解いていない問題を、それぞれ優先できる
+  let prioritizeWrong = $state(settings.value.prioritizeWrong);
+  let prioritizeUnanswered = $state(settings.value.prioritizeUnanswered);
   const latest = $derived(latestResults(history.attempts));
   const priority = $derived(priorityIds(ids, latest));
+  const prioritySet = $derived(
+    new Set([
+      ...(prioritizeWrong ? priority.wrong : []),
+      ...(prioritizeUnanswered ? priority.unanswered : []),
+    ]),
+  );
+  const anyPriority = $derived(prioritizeWrong || prioritizeUnanswered);
 
   async function start() {
     if (count === 0) return;
     const snapshot = structuredClone(range);
-    settings.update({ lastRange: snapshot, lastCount: wanted, prioritize });
-    const picked = prioritize
-      ? pickPrioritized(
-          ids,
-          count,
-          new Set([...priority.wrong, ...priority.unanswered]),
-          Math.random,
-        )
+    settings.update({
+      lastRange: snapshot,
+      lastCount: wanted,
+      prioritizeWrong,
+      prioritizeUnanswered,
+    });
+    const picked = anyPriority
+      ? pickPrioritized(ids, count, prioritySet, Math.random)
       : pickRandom(ids, count, Math.random);
     await launcher.launch(picked, "normal", snapshot);
   }
@@ -79,30 +87,44 @@
 
   <section class="rounded-2xl border border-stone-200 bg-white p-4">
     <h2 class="mb-3 text-lg font-bold">出し方</h2>
-    <button
-      type="button"
-      role="switch"
-      aria-checked={prioritize}
-      class="flex min-h-11 items-center gap-3 text-left"
-      onclick={() => (prioritize = !prioritize)}
-    >
-      <span
-        class="relative inline-flex h-7 w-12 shrink-0 rounded-full transition-colors {prioritize
-          ? 'bg-stone-900'
-          : 'bg-stone-300'}"
-        aria-hidden="true"
-        ><span
-          class="absolute top-1 size-5 rounded-full bg-white transition-all {prioritize
-            ? 'left-6'
-            : 'left-1'}"
-        ></span></span
+    {#snippet toggle(on: boolean, label: string, flip: () => void)}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        class="flex min-h-11 items-center gap-3 text-left"
+        onclick={flip}
       >
-      <span>間違えた問題と、まだ解いていない問題を優先する</span>
-    </button>
+        <span
+          class="relative inline-flex h-7 w-12 shrink-0 rounded-full transition-colors {on
+            ? 'bg-stone-900'
+            : 'bg-stone-300'}"
+          aria-hidden="true"
+          ><span
+            class="absolute top-1 size-5 rounded-full bg-white transition-all {on
+              ? 'left-6'
+              : 'left-1'}"
+          ></span></span
+        >
+        <span>{label}</span>
+      </button>
+    {/snippet}
+    <div class="space-y-1">
+      {@render toggle(
+        prioritizeWrong,
+        "間違えた問題を優先",
+        () => (prioritizeWrong = !prioritizeWrong),
+      )}
+      {@render toggle(
+        prioritizeUnanswered,
+        "まだ解いていない問題を優先",
+        () => (prioritizeUnanswered = !prioritizeUnanswered),
+      )}
+    </div>
     <p class="mt-2 text-sm text-stone-500" data-testid="priority-count">
       範囲の中で、最後に間違えた問題 {priority.wrong.length} 問・まだ解いていない問題
-      {priority.unanswered.length} 問。{prioritize
-        ? "この中から先に選び、足りない分は残りから選びます。"
+      {priority.unanswered.length} 問。{anyPriority
+        ? "オンにした問題から先に選び、足りない分は残りから選びます。"
         : "オフのときは範囲の中から均等に選びます。"}
     </p>
   </section>

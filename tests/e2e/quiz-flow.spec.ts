@@ -109,7 +109,7 @@ test("問題数: すべて、対象より多い自由な数は対象の数だけ
   await expect(page.getByTestId("progress")).toHaveText("1 / 22");
 });
 
-test("間違えた問題とまだ解いていない問題を優先する切り替え", async ({
+test("間違えた問題・まだ解いていない問題を優先する切り替え", async ({
   page,
 }) => {
   await answerOne(page, false, "setup", 49);
@@ -118,17 +118,21 @@ test("間違えた問題とまだ解いていない問題を優先する切り�
   await expect(page.getByTestId("priority-count")).toContainText(
     "最後に間違えた問題 1 問・まだ解いていない問題 21 問",
   );
-  const sw = page.getByRole("switch", {
-    name: "間違えた問題と、まだ解いていない問題を優先する",
+  const wrong = page.getByRole("switch", { name: "間違えた問題を優先" });
+  const unanswered = page.getByRole("switch", {
+    name: "まだ解いていない問題を優先",
   });
-  await expect(sw).toHaveAttribute("aria-checked", "false");
-  await sw.click();
-  await expect(sw).toHaveAttribute("aria-checked", "true");
+  await expect(wrong).toHaveAttribute("aria-checked", "false");
+  await expect(unanswered).toHaveAttribute("aria-checked", "false");
+  await wrong.click();
+  await expect(wrong).toHaveAttribute("aria-checked", "true");
+  await expect(unanswered).toHaveAttribute("aria-checked", "false");
   await page.getByRole("radio", { name: "5問" }).check();
   await page.getByRole("button", { name: "5 問で始める" }).click();
   await expect(page.getByTestId("progress")).toHaveText("1 / 5");
 
-  // 次に開いたときもオンのまま
+  // 次に開いたときも、それぞれの状態のまま
   await page.goto("/#/setup");
-  await expect(sw).toHaveAttribute("aria-checked", "true");
+  await expect(wrong).toHaveAttribute("aria-checked", "true");
+  await expect(unanswered).toHaveAttribute("aria-checked", "false");
 });
