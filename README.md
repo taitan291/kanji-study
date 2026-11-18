@@ -18,6 +18,7 @@
 - 仕様書: [docs/spec.md](docs/spec.md)
 - 設計・実装計画書: [docs/design-plan.md](docs/design-plan.md)
 - あとで直すこと: [docs/tech-debt.md](docs/tech-debt.md)
+- コントリビュートのしかた: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## 開発の始め方
 
