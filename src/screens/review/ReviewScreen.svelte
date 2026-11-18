@@ -12,6 +12,8 @@
   import RangePicker from "../setup/RangePicker.svelte";
   import { history } from "../../state/history.svelte";
   import { launcher } from "../../state/launcher.svelte";
+  import { practicePlan } from "../../state/practice-plan.svelte";
+  import { router } from "../../state/router.svelte";
   import { settings } from "../../state/settings.svelte";
 
   /** 復習の出題（仕様書 6.3）。連続正解の少ないもの、間違いの多いものを優先 */
@@ -35,6 +37,22 @@
       "review",
       range,
     );
+  }
+
+  /** これから復習する問題を、見ながら書いて練習してから復習を始める */
+  function practiceThenStart() {
+    if (count === 0) return;
+    const ids = pickReview(entries, count, Math.random);
+    const picked = new Set(ids);
+    practicePlan.set({
+      kind: "review",
+      // 練習は問題の並び順、復習はばらばらの順で出す
+      questionIds: questions.list
+        .filter((q) => picked.has(q.id))
+        .map((q) => q.id),
+      retry: { questionIds: ids, mode: "review", range },
+    });
+    router.go("practice");
   }
 </script>
 
@@ -88,7 +106,12 @@
         onchange={(n) => (wanted = n)}
       />
     </section>
-    <div class="flex justify-end">
+    <div class="flex flex-wrap justify-end gap-2">
+      <button
+        class={btn.secondary}
+        disabled={count === 0}
+        onclick={practiceThenStart}>練習してから復習する</button
+      >
       <button class={btn.primary} disabled={count === 0} onclick={start}
         >{count} 問で復習を始める</button
       >

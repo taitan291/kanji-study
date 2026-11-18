@@ -10,9 +10,7 @@ export function loadFixtureQuestions(): Question[] {
 
 /** 本物と同じ形（第49〜54回、129問）の見本データ。中身は自作 */
 export function loadSampleQuestions(): ReturnType<typeof parseQuestions> {
-  return parseQuestions(
-    JSON.parse(readFileSync("tests/fixtures/sample-questions.json", "utf8")),
-  );
+  return parseQuestions(JSON.parse(readFileSync("example.json", "utf8")));
 }
 
 let n = 0;

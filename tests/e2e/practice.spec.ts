@@ -6,10 +6,13 @@ test("間違えた問題を、漢字を見たり隠したりしながら練習�
 }) => {
   await page.goto("/#/practice");
   await expect(page.getByText("練習する問題はありません")).toBeVisible();
+  // まだ間違えていなくても、すべての問題なら練習できる
+  await page.getByLabel("練習する問題").selectOption("all");
+  await expect(page.getByTestId("practice-kanji")).toBeVisible();
 
   await answerOne(page, false, "setup", 49);
   await expect(page.getByTestId("review-count")).toHaveText("1");
-  await page.getByRole("link", { name: "間違えた問題を練習する" }).click();
+  await page.getByRole("link", { name: "練習する", exact: true }).click();
 
   await expect(page.getByTestId("progress")).toHaveText("1 / 1");
   await expect(page.getByTestId("furu")).toBeVisible();
@@ -78,5 +81,21 @@ test("練習する範囲を回で絞れる", async ({ page }) => {
   await range.getByLabel("すべての回").uncheck(); // 0問になっても範囲の欄は開いたまま
   await expect(page.getByText("練習する問題はありません")).toBeVisible();
   await range.getByRole("button", { name: /第50回/ }).click();
+  await expect(page.getByTestId("progress")).toHaveText("1 / 1");
+});
+
+test("復習画面から、練習してから復習を始められる", async ({ page }) => {
+  await answerOne(page, false, "setup", 49);
+  await page.goto("/#/review");
+  await page.getByRole("button", { name: "練習してから復習する" }).click();
+  await expect(page.getByTestId("practice-plan")).toHaveText(
+    "これから復習する問題を練習してから、復習を始めます",
+  );
+  await expect(page.getByTestId("progress")).toHaveText("1 / 1");
+  await expect(page.getByTestId("practice-kanji")).toBeVisible();
+  await page.getByRole("button", { name: "練習を終えて復習を始める" }).click();
+
+  // 復習の回が始まる
+  await expect(page.getByRole("button", { name: "中断" })).toBeVisible();
   await expect(page.getByTestId("progress")).toHaveText("1 / 1");
 });

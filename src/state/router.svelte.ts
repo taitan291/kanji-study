@@ -8,6 +8,7 @@ export const ROUTES = [
   "grading",
   "result",
   "stats",
+  "list",
   "settings",
   "trial",
 ] as const;

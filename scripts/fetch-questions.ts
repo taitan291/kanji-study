@@ -6,7 +6,7 @@
  *   1. KANJI_DATA_DIR  … 手元に clone した kanji-study-dict のフォルダー
  *   2. KANJI_DATA_TAKEN … GitHub のトークン（kanji-study-dict の Contents を読めるもの）
  *   3. すでに public/data/questions.json がある … そのまま使う（手元で一度取ったもの）
- *   4. どれもない … 見本データ（tests/fixtures/sample-questions.json、自作の129問）を使う
+ *   4. どれもない … 見本データ（example.json、自作の129問）を使う
  *
  * Cloudflare Pages の本番ビルド（main）で本物が取れないときは、見本のまま公開しないよう失敗させる。
  */
@@ -14,7 +14,7 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const OUT = "public/data/questions.json";
-const SAMPLE = "tests/fixtures/sample-questions.json";
+const SAMPLE = "example.json";
 const repo = process.env.KANJI_DATA_REPO ?? "taitan291/kanji-study-dict";
 const ref = process.env.KANJI_DATA_REF ?? "main";
 const file = process.env.KANJI_DATA_PATH ?? "questions.json";

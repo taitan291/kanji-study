@@ -35,9 +35,10 @@
   import ToolBar from "../answer/ToolBar.svelte";
 
   /**
-   * 間違えた問題の練習。例文と正しい漢字を見ながら書く。漢字は隠したり出したりできる。
+   * 練習。例文と正しい漢字を見ながら書く。漢字は隠したり出したりできる。
+   * 対象は復習リスト・間違えたことがある全部・すべての問題から選ぶ。
    * 採点も記録もしないので、復習リストや統計は変わらない。手書きも保存しない。
-   * 結果画面から来たとき（practicePlan がある）は、その回で間違えた問題だけを練習し、最後に解き直す。
+   * 結果画面・復習画面から来たとき（practicePlan がある）は、予定の問題だけを練習し、最後にその回を始める。
    */
   let source = $state<PracticeSource>("review");
   let shuffled = $state(false);
@@ -55,6 +56,9 @@
   );
   const missedList = $derived(
     practiceQuestions(questions.list, history.review, stats, "missed"),
+  );
+  const allList = $derived(
+    practiceQuestions(questions.list, history.review, stats, "all"),
   );
   // 結果画面から来たときの予定（画面を開いたときのものを使い、離れたら消す）
   const plan = practicePlan.current;
@@ -77,7 +81,13 @@
   // 範囲。null は「すべての回」（対象を切り替えたら戻す）
   let chosen = $state.raw<RangeSpec | null>(null);
   let rangeOpen = $state(false);
-  const sourceList = $derived(source === "review" ? reviewList : missedList);
+  const sourceList = $derived(
+    source === "review"
+      ? reviewList
+      : source === "missed"
+        ? missedList
+        : allList,
+  );
   const range = $derived(chosen ?? allRoundsRange(sourceList));
 
   const list = $derived.by(() => {
@@ -151,6 +161,7 @@
       <option value="missed"
         >間違えたことがある全部（{missedList.length}問）</option
       >
+      <option value="all">すべての問題（{allList.length}問）</option>
     </select>
     <label class="flex min-h-9 items-center gap-1.5">
       <input
@@ -186,9 +197,7 @@
       <div class="space-y-1">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
           <a href="#/" class={btn.small}>戻る</a>
-          <h1 class="font-bold [@media(max-height:500px)]:hidden">
-            間違えた問題の練習
-          </h1>
+          <h1 class="font-bold [@media(max-height:500px)]:hidden">練習</h1>
           <span class="text-lg font-bold" data-testid="progress"
             >{index + 1} / {list.length}</span
           >
@@ -198,7 +207,9 @@
         </div>
         {#if plan}
           <p class="text-sm text-stone-600" data-testid="practice-plan">
-            この回で間違えた問題を練習してから、もう一度解きます
+            {plan.kind === "review"
+              ? "これから復習する問題を練習してから、復習を始めます"
+              : "この回で間違えた問題を練習してから、もう一度解きます"}
           </p>
         {:else}
           {@render sourcePicker()}
@@ -277,7 +288,9 @@
         >
         {#if plan && index >= list.length - 1}
           <button class={btn.primary} onclick={finishAndRetry}
-            >練習を終えてもう一度解く</button
+            >{plan.kind === "review"
+              ? "練習を終えて復習を始める"
+              : "練習を終えてもう一度解く"}</button
           >
         {:else}
           <button
@@ -293,11 +306,11 @@
   <div class="mx-auto max-w-2xl space-y-4 p-4">
     <header class="flex items-center gap-3">
       <a href="#/" class="text-stone-500 underline">戻る</a>
-      <h1 class="text-xl font-bold">間違えた問題の練習</h1>
+      <h1 class="text-xl font-bold">練習</h1>
     </header>
     {@render sourcePicker()}
     <p class="text-stone-600">
-      練習する問題はありません。×が付いた問題がここに入ります。
+      練習する問題はありません。復習リストと「間違えたことがある全部」には×が付いた問題が入ります。「すべての問題」を選ぶと、まだ間違えていない問題も練習できます。
     </p>
   </div>
 {/if}

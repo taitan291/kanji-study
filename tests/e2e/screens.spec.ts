@@ -37,6 +37,9 @@ test.describe("画面写真", () => {
       await shot("result");
       await page.goto("/#/stats");
       await shot("stats");
+      await page.goto("/#/list");
+      await page.getByTestId("kanji-card").first().click();
+      await shot("list");
     });
   }
 });
