@@ -1,6 +1,19 @@
-# kanji
+# kanji-study
 
 漢字の書き取りを手書きで練習するための個人用Webサイト（https://kanji.taitan.uk ）。
+例文の太字の読みを見て漢字を手書きし、正しい漢字と見比べて○×で自己採点します。間違えた問題は復習リストに入り、統計で苦手な漢字がわかります。
+
+- Vite + Svelte 5 + Tailwind CSS の静的サイト。Cloudflare Pages で配信し、Pages Functions で簡単なログインをかけています。
+- 解答の記録はその端末のブラウザ（IndexedDB）にだけ保存します。サーバーには何も送りません。PWA としてオフラインでも動きます。
+
+## リポジトリの分け方
+
+| リポジトリ                      | 公開   | 中身                                                              |
+| ------------------------------- | ------ | ----------------------------------------------------------------- |
+| `taitan291/kanji-study`（ここ） | 公開   | アプリのコード、テスト、仕様書・計画書                            |
+| `taitan291/kanji-study-dict`    | 非公開 | 問題データ `questions.json`（教材をもとにしているため公開しない） |
+
+このリポジトリには問題データが入っていません。ビルドのときに `kanji-study-dict` から取ってきます（下の「問題データの取り込み」）。手元やテストでは、自作の見本データ（129問）で動きます。
 
 - 仕様書: [docs/spec.md](docs/spec.md)
 - 設計・実装計画書: [docs/design-plan.md](docs/design-plan.md)
@@ -15,11 +28,13 @@ npm run dev      # http://localhost:5173
 ```
 
 Nix を使わない場合は Node.js 22 を入れて `npm ci` から始めます（Cloudflare のビルドも Nix なしです）。
-`flake.lock` は最初に `nix develop` を実行したときに作られるので、コミットしてください。
+
+本物の問題データで動かしたいときは、`kanji-study-dict` を隣に clone して `KANJI_DATA_DIR=../kanji-study-dict npm run dev` とします。指定しなければ見本データで動きます。
 
 | コマンド                         | 内容                                   |
 | -------------------------------- | -------------------------------------- |
 | `npm run build`                  | 本番用のビルド（`dist/`）              |
+| `npm run fetch:data`             | 問題データを用意する（下を参照）       |
 | `npm test`                       | 単体テスト（Vitest）                   |
 | `npm run test:e2e`               | 画面のテスト（Playwright）             |
 | `npm run lint` / `npm run check` | ESLint / 型チェック                    |
@@ -37,7 +52,19 @@ cp .dev.vars.example .dev.vars   # 値は手元用
 npm run pages:dev                # http://localhost:8788
 ```
 
-Cloudflare 側の設定は [docs/cloudflare-setup.md](docs/cloudflare-setup.md) を参照してください。
+## デプロイ（Cloudflare Pages）
+
+- `main` に push すると本番（https://kanji.taitan.uk ）に、それ以外のブランチはプレビュー URL に自動でデプロイされます。作業は `develop` 向けの PR で進め、まとめて `develop` → `main` に入れます。
+- ビルドコマンドは `npm run build`、出力先は `dist`。
+- Pages の変数とシークレット（本番とプレビューの両方）:
+
+| 名前                          | 用途                                                                       |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| `AUTH_USER` / `AUTH_PASSWORD` | ログインのユーザー名とパスワード                                           |
+| `AUTH_SECRET`                 | ログイン Cookie の署名用の秘密の値                                         |
+| `KANJI_DATA_TAKEN`            | `kanji-study-dict` を読むための GitHub トークン（Contents の読み取りだけ） |
+
+設定の手順は [docs/cloudflare-setup.md](docs/cloudflare-setup.md) を参照してください。
 
 ## 問題を足す・直す
 
