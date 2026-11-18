@@ -3,10 +3,11 @@ import type { QuestionStats } from "./stats";
 import type { Question, QuestionId } from "./types";
 
 /**
- * 間違えた問題の練習（なぞり書き・書き写し）。採点も記録もしない。
- * review: いま復習リストにある問題、missed: これまでに1回でも間違えた問題。
+ * 練習（なぞり書き・書き写し）。採点も記録もしない。
+ * review: いま復習リストにある問題、missed: これまでに1回でも間違えた問題、
+ * all: すべての問題（まだ間違えていない問題も含む）。
  */
-export type PracticeSource = "review" | "missed";
+export type PracticeSource = "review" | "missed" | "all";
 
 /** 練習する問題を、問題の並び順で返す（問題データに無いものは除く） */
 export function practiceQuestions(
@@ -15,6 +16,7 @@ export function practiceQuestions(
   stats: readonly QuestionStats[],
   source: PracticeSource,
 ): Question[] {
+  if (source === "all") return [...questions];
   const ids =
     source === "review"
       ? new Set(review.keys())

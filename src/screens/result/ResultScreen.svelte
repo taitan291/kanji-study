@@ -30,6 +30,7 @@
   function practiceThenRetry() {
     if (!quiz || wrong.length === 0) return;
     practicePlan.set({
+      kind: "retry",
       questionIds: [...wrong],
       retry: {
         questionIds: shuffle(wrong, Math.random),
