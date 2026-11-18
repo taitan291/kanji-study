@@ -5,7 +5,7 @@
 > **注意**: いまのダッシュボードでは、最初に出る「アプリケーションを作成」の流れで進むと **Workers** のプロジェクトになります（「Deploy command: `npx wrangler deploy`」の欄がある画面）。このサイトは **Pages**（Pages Functions でログインを行う）なので、その画面では進めず **Back** で戻ってください。
 
 1. Cloudflare のダッシュボード → **Workers & Pages** → **作成** → **Pages** タブ（または画面下の「Pages を使いたい場合はこちら」）→ **既存の Git リポジトリをインポート**（Git に接続）
-2. GitHub の `taitan291/kanji` を選ぶ（Cloudflare の GitHub アプリにこのリポジトリへのアクセスを許可する）
+2. GitHub の `taitan291/kanji-study` を選ぶ（Cloudflare の GitHub アプリにこのリポジトリへのアクセスを許可する）
 3. ビルドの設定:
    - フレームワーク プリセット: なし
    - ビルドコマンド: `npm run build`
