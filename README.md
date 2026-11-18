@@ -113,3 +113,13 @@ Cloudflare の Pages プロジェクト → 設定 → 変数とシークレッ�
 | `domain/`                 | 画面にも保存先にも依存しないロジック（復習、統計、統合など） |
 
 `functions/` はログイン用の Cloudflare Pages Functions で、ブラウザ側のコードとは独立しています。
+
+## ライセンス
+
+このリポジトリのコードと文書は [MIT ライセンス](LICENSE) です。問題データ（非公開リポジトリ `kanji-study-dict`）は含まれず、このライセンスの対象外です。
+
+サイトに同梱しているもののライセンス:
+
+- フォント [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)（`@fontsource-variable/noto-sans-jp`）: SIL Open Font License 1.1
+- アイコン [Material Symbols](https://github.com/google/material-design-icons)（`@material-symbols/svg-400`）: Apache License 2.0
+- そのほかの npm パッケージ（Svelte、idb、workbox など）: それぞれのライセンス（MIT、ISC など）
