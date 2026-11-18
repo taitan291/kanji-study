@@ -6,8 +6,10 @@ import { PEN_WIDTHS, type PenWidth } from "../handwriting/strokes";
 export interface Settings {
   penWidth: PenWidth;
   penOnly: boolean;
-  /** 出題で、間違えた問題とまだ解いていない問題を優先する */
-  prioritize: boolean;
+  /** 出題で、最後に間違えた問題を優先する */
+  prioritizeWrong: boolean;
+  /** 出題で、まだ解いていない問題を優先する */
+  prioritizeUnanswered: boolean;
   /** 最後に使った出題範囲（仕様書 9.4） */
   lastRange: RangeSpec | null;
   /** 最後に選んだ問題数 */
@@ -20,7 +22,8 @@ const KEY = "kanji-study:settings";
 export const DEFAULT_SETTINGS: Settings = {
   penWidth: "normal",
   penOnly: false,
-  prioritize: false,
+  prioritizeWrong: false,
+  prioritizeUnanswered: false,
   lastRange: null,
   lastCount: 10,
 };
@@ -33,6 +36,10 @@ export function loadSettings(
     const raw = storage?.getItem(KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
     const v = JSON.parse(raw) as Record<string, unknown>;
+    // 以前の設定（両方まとめた prioritize）は、両方の初期値として引き継ぐ
+    const legacy = typeof v.prioritize === "boolean" ? v.prioritize : undefined;
+    const flag = (value: unknown, fallback: boolean) =>
+      typeof value === "boolean" ? value : (legacy ?? fallback);
     return {
       penWidth:
         typeof v.penWidth === "string" && v.penWidth in PEN_WIDTHS
@@ -40,10 +47,14 @@ export function loadSettings(
           : DEFAULT_SETTINGS.penWidth,
       penOnly:
         typeof v.penOnly === "boolean" ? v.penOnly : DEFAULT_SETTINGS.penOnly,
-      prioritize:
-        typeof v.prioritize === "boolean"
-          ? v.prioritize
-          : DEFAULT_SETTINGS.prioritize,
+      prioritizeWrong: flag(
+        v.prioritizeWrong,
+        DEFAULT_SETTINGS.prioritizeWrong,
+      ),
+      prioritizeUnanswered: flag(
+        v.prioritizeUnanswered,
+        DEFAULT_SETTINGS.prioritizeUnanswered,
+      ),
       lastRange: sanitizeRange(v.lastRange),
       lastCount:
         typeof v.lastCount === "number" &&
