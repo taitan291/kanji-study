@@ -13,7 +13,7 @@
 | `taitan291/kanji-study`（ここ） | 公開   | アプリのコード、テスト、仕様書・計画書                            |
 | `taitan291/kanji-study-dict`    | 非公開 | 問題データ `questions.json`（教材をもとにしているため公開しない） |
 
-このリポジトリには問題データが入っていません。ビルドのときに `kanji-study-dict` から取ってきます（下の「問題データの取り込み」）。手元やテストでは、自作の見本データ（129問）で動きます。
+このリポジトリには問題データが入っていません。ビルドのときに `kanji-study-dict` から取ってきます（下の「問題データの取り込み」）。手元やテストでは、同じ形の自作の見本データ [`example.json`](example.json)（129問）で動きます。問題データの形式を知りたいときもこのファイルを見てください。
 
 - 仕様書: [docs/spec.md](docs/spec.md)
 - 設計・実装計画書: [docs/design-plan.md](docs/design-plan.md)
@@ -81,12 +81,12 @@ npm run pages:dev                # http://localhost:8788
 
 `npm run dev` と `npm run build` の最初に自動で動き、`public/data/questions.json`（git には入らない）を用意します。
 
-| 条件                                       | 使うデータ                                                        |
-| ------------------------------------------ | ----------------------------------------------------------------- |
-| `KANJI_DATA_DIR` がある                    | そのフォルダー（手元の `kanji-study-dict`）の `questions.json`    |
-| `KANJI_DATA_TAKEN` がある                  | GitHub から `kanji-study-dict` の `questions.json` を取得         |
-| すでに `public/data/questions.json` がある | そのまま                                                          |
-| どれもない                                 | 見本データ（`tests/fixtures/sample-questions.json`、自作の129問） |
+| 条件                                       | 使うデータ                                                     |
+| ------------------------------------------ | -------------------------------------------------------------- |
+| `KANJI_DATA_DIR` がある                    | そのフォルダー（手元の `kanji-study-dict`）の `questions.json` |
+| `KANJI_DATA_TAKEN` がある                  | GitHub から `kanji-study-dict` の `questions.json` を取得      |
+| すでに `public/data/questions.json` がある | そのまま                                                       |
+| どれもない                                 | 見本データ（`example.json`、自作の129問）                      |
 
 テストと CI は見本データで動きます。Cloudflare Pages の本番ビルド（`main`）で本物が取れないときは、ビルドを失敗させます。
 
