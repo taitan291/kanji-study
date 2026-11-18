@@ -120,9 +120,7 @@
         >（{history.review.size}件）</span
       >
     </a>
-    <a href="#/practice" class="{btn.secondary} min-h-14">
-      間違えた問題を練習する
-    </a>
+    <a href="#/practice" class="{btn.secondary} min-h-14">練習する</a>
     <div class="grid grid-cols-2 gap-3">
       <a href="#/list" class="{btn.secondary} min-h-14">漢字一覧</a>
       <a href="#/stats" class="{btn.secondary} min-h-14">統計</a>
